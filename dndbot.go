@@ -11,6 +11,8 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+var charMap = map[string]Character{}
+
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Fprintf(os.Stderr, "usage: dndbot slack-bot-token\n")
@@ -78,6 +80,24 @@ func roll(ws *websocket.Conn, m Message, parts []string) {
   postMessage(ws, m)
 }
 
+func errorMessage(ws *websocket.Conn, m Message, err error) {
+  m.Text = fmt.Sprintf("sorry, does not compute: %v\n", err)
+  postMessage(ws, m)
+}
+
+func getChar(parts []string) (Character, error) {
+  if len(parts) < 3 {
+    return Character{}, fmt.Errorf("not enough args")
+  }
+  name := parts[2]
+  c := charMap[name]
+  emptyChar := Character{}
+  if c == emptyChar {
+    return c, fmt.Errorf("character %v doesn't exist", name)
+  }
+  return c, nil
+}
+
 func parseMessage(ws *websocket.Conn, m Message) {
 	parts := strings.Fields(m.Text)
 	if len(parts) < 2 {
@@ -90,11 +110,20 @@ func parseMessage(ws *websocket.Conn, m Message) {
 		break
   case parts[1] == "createRandom":
     c := createRandom()  
+    charMap[c.Name] = c
     s := c.print()
     m.Text = s
     postMessage(ws, m)
     break
-  m.Text = fmt.Sprintf("sorry, does not compute\n")
-  postMessage(ws, m)
+  case parts[1] == "printChar":
+    c, err := getChar(parts)
+    if err != nil {
+      errorMessage(ws, m, err)  
+    }
+    m.Text = c.print()
+    postMessage(ws, m)
+    break
+  err = fmt.Errorf("Not a valid command")
+  errorMessage(ws, m, err)
 	}
 }
