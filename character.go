@@ -17,9 +17,22 @@ type Stats struct {
   Constitution int
 }
 
+type DerivedStat struct {
+  CurrentValue int
+  MaxValue int
+}
+
+type DerivedStats struct {
+  Health DerivedStat
+  Armor DerivedStat
+  Stamina DerivedStat
+  CarryWeight DerivedStat
+}
+
 type Character struct {
   Name string
   Stats Stats
+  DStats DerivedStats
   // to come:
   // StatusEffects
   // Description
@@ -36,7 +49,8 @@ func createRandom() Character {
     Luck: rand.Intn(100),
     Constitution: rand.Intn(100),
   }
-  c := Character{"RandomName", stats}
+  dstats := DerivedStats{}
+  c := Character{"RandomName", stats, dstats}
   return c
 }
 
@@ -52,9 +66,20 @@ func (s Stats) print() string {
   return buffer.String()
 }
 
+func (d DerivedStat) print() string {
+  return fmt.Sprintf("%v/%v", d.CurrentValue, d.MaxValue)
+}
+
+func (d DerivedStats) print() string {
+  var buffer bytes.Buffer
+  buffer.WriteString("Health: " + d.Health.print() + "\n")
+  return buffer.String() 
+}
+
 func (c Character) print() string {
   var buffer bytes.Buffer
   buffer.WriteString(c.Name + "\n")
+  buffer.WriteString(c.DStats.print())
   buffer.WriteString(c.Stats.print())
   return buffer.String()
 }
