@@ -8,31 +8,31 @@ import (
 )
 
 type Stats struct {
-  Strength int
-  Dexterity int
-  Intelligence int
-  Charisma int
-  Wisdom int
-  Luck int
-  Constitution int
+  Strength int `json:"strength"`
+  Dexterity int `json:"dexterity"`
+  Intelligence int `json:"intelligence"`
+  Charisma int `json:"charisma"`
+  Wisdom int `json:"wisdom"`
+  Luck int `json:"luck"`
+  Constitution int `json:"constitution"`
 }
 
 type DerivedStat struct {
-  CurrentValue int
-  MaxValue int
+  CurrentValue int `json:"current"`
+  MaxValue int `json:"max"`
 }
 
 type DerivedStats struct {
-  Health DerivedStat
-  Armor DerivedStat
-  Stamina DerivedStat
-  CarryWeight DerivedStat
+  Health DerivedStat `json:"health"`
+  Armor DerivedStat `json:"armor"`
+  Stamina DerivedStat `json:"stamina"`
+  CarryWeight DerivedStat `json:"carry"`
 }
 
 type Character struct {
-  Name string
-  Stats Stats
-  DStats DerivedStats
+  Name string `json:"name"`
+  Stats Stats `json:"stats"`
+  DStats DerivedStats `json:"dstats"`
   // to come:
   // StatusEffects
   // Description
