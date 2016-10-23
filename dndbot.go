@@ -98,13 +98,30 @@ func getChar(parts []string) (Character, error) {
   return c, nil
 }
 
+func printHelp(ws *websocket.Conn, m Message, parts []string) {
+  m.Text = `General usage: @testbot <command> args
+  
+  Available commands:
+     help:           prints this help message
+     roll:           rolls dice specified by <#1>d<#2> where #1 is
+                     the number of dice and #2 is the size of dice
+     createRandom:   creates a random character with random stats
+                     Note: not balanced at all, for testing
+     printChar:      prints everything about a character`
+  postMessage(ws, m)
+}
+
 func parseMessage(ws *websocket.Conn, m Message) {
+	log.Printf("Got message from channel: %v\n%v", m.Channel, m.Text)
 	parts := strings.Fields(m.Text)
 	if len(parts) < 2 {
 		m.Text = fmt.Sprintf("sorry, does not compute\n")
 		postMessage(ws, m)
 	}
 	switch {
+	case parts[1] == "help":
+	  go printHelp(ws, m, parts)
+	  break
   case parts[1] == "roll":
 		go roll(ws, m, parts) 
 		break

@@ -69,6 +69,7 @@ var counter uint64
 
 func postMessage(ws *websocket.Conn, m Message) error {
 	m.Id = atomic.AddUint64(&counter, 1)
+	log.Printf("Posting message to channel: %v", m.Channel)
 	return websocket.JSON.Send(ws, m)
 }
 
