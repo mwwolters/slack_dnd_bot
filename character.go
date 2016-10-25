@@ -54,6 +54,17 @@ func createRandom() Character {
   return c
 }
 
+func CreateChar(parts []string) Character {
+  if len(parts) < 1 {
+    return createRandom()
+  }
+  switch {
+  case  parts[0] == "random":
+    return createRandom()
+  }
+  return createRandom()
+}
+
 func (s Stats) print() string {
   var buffer bytes.Buffer
   r := reflect.ValueOf(&s).Elem()
@@ -76,7 +87,7 @@ func (d DerivedStats) print() string {
   return buffer.String() 
 }
 
-func (c Character) print() string {
+func (c Character) Print() string {
   var buffer bytes.Buffer
   buffer.WriteString(c.Name + "\n")
   buffer.WriteString(c.DStats.print())
