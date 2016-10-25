@@ -100,16 +100,42 @@ func getChar(parts []string) (Character, error) {
   return c, nil
 }
 
+func create(ws *websocket.Conn, m Message, parts []string) {
+    if len(parts) < 3 {
+      err := fmt.Errorf("too few args for create")
+      errorMessage(ws, m, err) 
+      return
+    }
+    switch {
+    case parts[2] == "character":
+      c := CreateChar(parts[2:])  // TODO
+      gs.AddChar(c)
+      s := c.Print()
+      m.Text = s
+      break
+    case parts[2] == "item":
+      i := CreateItem(parts[2:] ) // TODO 
+      s := i.Print()
+      m.Text = s
+      break
+    err := fmt.Errorf("invalid arg for create: %v", parts[2])
+    errorMessage(ws, m, err) 
+    return
+    }
+    postMessage(ws, m)
+}
+
 func printHelp(ws *websocket.Conn, m Message, parts []string) {
   m.Text = `General usage: @testbot <command> args
   
   Available commands:
-     help:           prints this help message
-     roll:           rolls dice specified by <#1>d<#2> where #1 is
-                     the number of dice and #2 is the size of dice
-     createRandom:   creates a random character with random stats
-                     Note: not balanced at all, for testing
-     printChar:      prints everything about a character`
+     help:          prints this help message
+     roll:          rolls dice specified by #1d#2 where #1 is
+                    the number of dice and #2 is the size of dice
+     create:        creates a random character with random stats
+                    Format: create <type> <args>
+                    Note: not balanced at all, for testing
+     printChar:     prints everything about a character`
   postMessage(ws, m)
 }
 
@@ -127,19 +153,15 @@ func parseMessage(ws *websocket.Conn, m Message) {
   case parts[1] == "roll":
 		go roll(ws, m, parts) 
 		break
-  case parts[1] == "createRandom":
-    c := createRandom()  
-    gs.AddChar(c)
-    s := c.print()
-    m.Text = s
-    postMessage(ws, m)
+  case parts[1] == "create":
+    go create(ws, m, parts)
     break
-  case parts[1] == "printChar":
+  case parts[1] == "printChar": //TODO change to print <type>
     c, err := getChar(parts)
     if err != nil {
       errorMessage(ws, m, err)  
     }
-    m.Text = c.print()
+    m.Text = c.Print()
     postMessage(ws, m)
     break
   case parts[1] == "load":
